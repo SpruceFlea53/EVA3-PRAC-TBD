@@ -1,0 +1,54 @@
+procedimientos almacenados
+
+mysql-sql> call ordenes_cliente('ALFKI');
++---------+------------+------------+--------------------+--------------------+-
+-------------------+---------+---------+----------------------+---------------+-
+---------+------------+----------------+-------------+
+| OrderID | CustomerID | EmployeeID | OrderDate          | RequiredDate       |
+ShippedDate        | ShipVia | Freight | ShipName             | ShipAddress   |
+ShipCity | ShipRegion | ShipPostalCode | ShipCountry |
++---------+------------+------------+--------------------+--------------------+-
+-------------------+---------+---------+----------------------+---------------+-
+---------+------------+----------------+-------------+
+|   10643 | ALFKI      |          6 | 1997-00-00 0:00:00 | 1997-00-00 0:00:00 |
+1997-00-00 0:00:00 |       1 | 29.4600 | Alfreds Futterkiste  | Obere Str. 57 |
+Berlin   | null       | 12209          | Germany     |
+|   10692 | ALFKI      |          4 | 1997-10-03 0:00:00 | 1997-10-31 0:00:00 |
+1997-10-13 0:00:00 |       2 | 61.0200 | Alfred-s Futterkiste | Obere Str. 57 |
+Berlin   | null       | 12209          | Germany     |
+|   10702 | ALFKI      |          4 | 1997-10-13 0:00:00 | 1997-11-24 0:00:00 |
+1997-10-21 0:00:00 |       1 | 23.9400 | Alfred-s Futterkiste | Obere Str. 57 |
+Berlin   | null       | 12209          | Germany     |
+|   10835 | ALFKI      |          1 | 1998-01-15 0:00:00 | 1998-02-12 0:00:00 |
+1998-01-21 0:00:00 |       3 | 69.5300 | Alfred-s Futterkiste | Obere Str. 57 |
+Berlin   | null       | 12209          | Germany     |
+|   10952 | ALFKI      |          1 | 1998-03-16 0:00:00 | 1998-04-27 0:00:00 |
+1998-03-24 0:00:00 |       1 | 40.4200 | Alfred-s Futterkiste | Obere Str. 57 |
+Berlin   | null       | 12209          | Germany     |
+|   11011 | ALFKI      |          3 | 1998-04-00 9:00:00 | 1998-05-07 0:00:00 |
+1998-04-13 0:00:00 |       1 |  1.2100 | Alfred-s Futterkiste | Obere Str. 57 |
+Berlin   | null       | 12209          | Germany     |
++---------+------------+------------+--------------------+--------------------+-
+-------------------+---------+---------+----------------------+---------------+-
+---------+------------+----------------+-------------+
+6 rows in set (0.03 sec)
+Query OK, 0 rows affected (0.16 sec)
+mysql-sql> call cantidad_ordenes_cliente('ALFKI', @canti);
+Query OK, 1 row affected (0.05 sec)
+mysql-sql> select @canti;
++--------+
+| @canti |
++--------+
+|      6 |
++--------+
+1 row in set (0.00 sec)
+mysql-sql>
+show create procedure cantidad_ordenes_clientes;
+
+crear un procedimiento almacenado que:
+	obtenga todos los clientes(consulta)
+	contactname empiece con una letra
+
+	------> entrada ''
+
+	regresar el conteo

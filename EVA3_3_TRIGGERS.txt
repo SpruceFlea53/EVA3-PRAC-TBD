@@ -1,0 +1,87 @@
+MySQL Shell 1.0.10
+
+Copyright (c) 2016, 2017, Oracle and/or its affiliates. All rights reserved.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type '\help' or '\?' for help; '\quit' to exit.
+
+Currently in JavaScript mode. Use \sql to switch to SQL mode and execute queries
+.
+mysql-js> \sql
+Switching to SQL mode... Commands end with ;
+mysql-sql> \connect -c root@localhost
+Creating a Classic Session to 'root@localhost'
+Enter password: ****
+Your MySQL connection id is 6
+Server version: 5.7.20-log MySQL Community Server (GPL)
+No default schema selected; type \use <schema> to set one.
+mysql-sql> \use mundo
+Schema set to `mundo`.
+mysql-sql> CREATE TABLE account (acct_num INT, amount DECIMAL(10,2));
+Query OK, 0 rows affected (0.85 sec)
+mysql-sql> desc account;
++----------+---------------+------+-----+---------+-------+
+| Field    | Type          | Null | Key | Default | Extra |
++----------+---------------+------+-----+---------+-------+
+| acct_num | int(11)       | YES  |     | null    |       |
+| amount   | decimal(10,2) | YES  |     | null    |       |
++----------+---------------+------+-----+---------+-------+
+2 rows in set (0.00 sec)
+mysql-sql> set @sum = 0;
+Query OK, 0 rows affected (0.00 sec)
+mysql-sql> select @sum;
++------+
+| @sum |
++------+
+|    0 |
++------+
+1 row in set (0.00 sec)
+mysql-sql> insert into account values(150,94.00),(45,236.00);
+Query OK, 2 rows affected (0.10 sec)
+
+Records: 2  Duplicates: 0  Warnings: 0
+mysql-sql> select @sum;
++--------+
+| @sum   |
++--------+
+| 330.00 |
++--------+
+1 row in set (0.00 sec)
+mysql-sql> create table empleados (empleadoid int not null primary key auto_incr
+ement, nombre varchar(50),
+       ... apellido varchar(50),
+       ... salario double,
+       ... comision double);
+Query OK, 0 rows affected (2.14 sec)
+mysql-sql> desc empleados;
++------------+-------------+------+-----+---------+----------------+
+| Field      | Type        | Null | Key | Default | Extra          |
++------------+-------------+------+-----+---------+----------------+
+| empleadoid | int(11)     | NO   | PRI | null    | auto_increment |
+| nombre     | varchar(50) | YES  |     | null    |                |
+| apellido   | varchar(50) | YES  |     | null    |                |
+| salario    | double      | YES  |     | null    |                |
+| comision   | double      | YES  |     | null    |                |
++------------+-------------+------+-----+---------+----------------+
+5 rows in set (0.01 sec)
+mysql-sql> insert into empleados(nombre,apellido,salario) values('Gerardo','Herr
+era',1200);
+ERROR: 1644 (45000): El salario minimo debe de ser mayor a $2200
+mysql-sql> insert into empleados(nombre,apellido,salario) values('Gerardo','Herr
+era',32000);
+Query OK, 1 row affected (0.11 sec)
+mysql-sql> insert into empleados(nombre,apellido,salario) values('Gerardo','Herr
+era',3000);
+Query OK, 1 row affected (0.09 sec)
+mysql-sql> select * from empleados;
++------------+---------+----------+---------+----------+
+| empleadoid | nombre  | apellido | salario | comision |
++------------+---------+----------+---------+----------+
+|          1 | Gerardo | Herrera  |   32000 |      0.2 |
+|          2 | Gerardo | Herrera  |    3000 |      0.1 |
++------------+---------+----------+---------+----------+
+2 rows in set (0.00 sec)
+mysql-sql>

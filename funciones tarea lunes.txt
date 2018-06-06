@@ -1,0 +1,183 @@
+listado de productos
+	ventas_producto
+	crear funcion que para un id de producto, obtenga las ventas totales
+	cantidad_vendida_producto
+	crear funcion que para un id de producto, obtenga la cantidad total vendida
+
+select productid, nombredelproducto, ventas_producto(), cantidad_vendida_producto()
+
+crear tabla
+ventas_producto
+	productid
+	totalsales
+	totalunits
+
+crear una funcion que use cursores para los productos, use las funciones anteriores 
+e inserte los valores en la tabla ventas_producto
+
+select distinct productid, productname, ventas_producto(productid), cantidad_vendida_producto(productid) from products;
+
+
+
+
+
+
+CREATE DEFINER=`root`@`localhost` FUNCTION `ventas_producto`(product_id text) RETURNS int(11)
+BEGIN
+
+	declare result double;
+	
+    select sum(A.quantity * A.Unitprice) into result 
+    from orderdetails A
+    inner join products B on B.productid = A.productid
+    where B.productid = product_id;
+    
+
+RETURN result;
+END
+
+
+CREATE DEFINER=`root`@`localhost` FUNCTION `sumar_numeros`(num1 int, num2 int) RETURNS int(11)
+BEGIN
+	/*La funcion se llama sumar_numeros,
+    recibe dos parametros de tipo entero*/
+	declare suma int; #declare declara una variable
+    set suma = 0;     -- set permite asignar un valor
+    set suma = num1 + num2;
+    RETURN suma;
+END
+
+
+CREATE DEFINER=`root`@`localhost` FUNCTION `obten_rfc`(nombre text, apellido_pat text, apellido_mat text, fecha_nac date) RETURNS text CHARSET utf8
+BEGIN
+	declare resu text; #resultado final
+	declare cadena_ap_pat text;
+    declare cadena_ap_mat text;
+    declare cadena_nom text;
+    declare annio int;
+    declare mes int;
+    declare dia int;
+    declare cadena_mes text;
+    declare cadena_dia text;
+    declare cadena_fecha text;
+    declare numero_alea int;
+    
+    #primeros 2 caracteres del ap paterno
+    set cadena_ap_pat = UPPER(left(apellido_pat,2));
+    #verificamos si existe el ap materno
+    if length(apellido_mat) > 0 then
+		set cadena_ap_mat = UPPER(left(apellido_mat,1));
+	else #si no existe se agrega una x
+		set cadena_ap_mat = 'X';
+	end if;
+    set cadena_nom = UPPER(left(nombre,1));
+    #fecha
+    set annio = year(fecha_nac);
+    set dia = dayofmonth(fecha_nac);
+    set mes = month(fecha_nac);
+    
+    if dia < 10 then
+		set cadena_dia = concat('0',dia);
+	else 
+		set cadena_dia = concat(dia); #convierte el entero a cadena
+    end if;
+    
+     if mes < 10 then
+		set cadena_mes = concat('0',mes);
+	else 
+		set cadena_mes = concat(mes); #convierte el entero a cadena
+    end if;
+    
+    set numero_alea = floor(rand() * 1000); #floor redondea
+    
+    set cadena_fecha = concat(right(concat(annio),2), cadena_mes, cadena_dia);
+    
+    set resu = concat(cadena_ap_pat, cadena_ap_mat, cadena_nom, cadena_fecha, concat(numero_alea));
+    
+RETURN resu;
+END
+
+
+CREATE DEFINER=`root`@`localhost` FUNCTION `llenar_ventas_producto`() RETURNS int(11)
+BEGIN
+
+	declare resu text;
+    declare productid int;
+    declare productname text;
+    declare totalsales double;
+    declare totalunits double;
+    
+    declare fin_cursor int default FALSE; #cuando llegue al final sera true
+    #declaramos el cursor: un cursor es un conjunto de datos de una consulta
+    declare cursor_productos cursor for select distinct productid, productname,
+    ventas_producto(productid), cantidad_vendida_producto(productid) from products
+    order by productid;
+    #se declara el cursor productos para nuestra consulta dentro de products, como controlar el cursor
+    declare continue handler for not found set fin_cursor = TRUE;
+    
+	
+    #se abre el cursor
+    open cursor_productos;
+    #se usa un ciclo para recorrer cada registro
+    ciclo_cursor: loop
+		#leemos los datos del registro y los guardamos en una variable
+		fetch cursor_productos into productid, productname, totalsales, totalunits;
+        #si llegamos al final, se produce la excepcion, fin_cursor, se iguala a true
+        
+        if fin_cursor then
+			leave ciclo_cursor;
+        else
+            insert into ventas_producto values(productid, totalsales, totalunits);
+            
+            end if;
+    end loop;
+    
+    close cursor_productos;
+    
+    set resu = (productid, productname, totalsales, totalunits);
+
+RETURN resu;
+END
+
+
+CREATE DEFINER=`root`@`localhost` FUNCTION `factorial`(num int) RETURNS int(11)
+BEGIN
+	declare acum int;
+    set acum = 1;
+    facto_loop: loop
+		if num > 0 then
+			set acum = acum * num;
+            set num = num - 1;
+            iterate facto_loop;
+        end if;
+        leave facto_loop;
+    end loop facto_loop;
+    
+	RETURN acum;
+END
+
+
+CREATE DEFINER=`root`@`localhost` FUNCTION `contar_clientes`() RETURNS int(11)
+BEGIN
+	declare cont int;
+    select count(*) into cont from customers;
+    
+	RETURN cont;
+END
+
+
+CREATE DEFINER=`root`@`localhost` FUNCTION `cantidad_vendida_producto`(product_id text) RETURNS int(11)
+BEGIN
+
+	declare resu double;
+    
+    select sum(A.quantity) into resu
+    from orderdetails A
+    inner join orders B on B.orderid = A.orderid
+    where A.productid = product_id;
+    
+
+RETURN resu;
+END
+
+

@@ -1,0 +1,165 @@
+CREATE DEFINER=`root`@`localhost` FUNCTION `contar_clientes_cursor`() RETURNS int(11)
+BEGIN
+	declare conta int;
+    declare customerid text;
+    declare fin_cursor int default FALSE; #cuando llegue al final sera true
+    #declaramos el cursor: un ursor es un conjunto de datos de una consulta
+    declare cursor_clientes cursor for select customerid from customers;
+    #se declara el cursor clientes para customerid dentro de customers, como controlar el cursor
+    
+    declare continue handler for not found set fin_cursor = TRUE;
+    
+    set conta = 0;
+    #se abre el cursor
+    open cursor_clientes;
+    #se usa un ciclo para recorrer cada registro
+    ciclo_cursor: loop
+		#leemos los datos del registro y los guardamos en una variable
+		fetch cursor_clientes into customerid;
+        #si llegamos al final, se produce la excepcion, fin_cursor, se iguala a true
+        
+        if fin_cursor then
+			leave ciclo_cursor;
+        else
+			set conta = conta + 1;
+            end if;
+    end loop;
+    
+    close cursor_clientes;
+    
+	#fetch mueve de registro en registro
+    #handler 
+
+RETURN conta;
+END
+
+CREATE DEFINER=`root`@`localhost` FUNCTION `copia_clientes`() RETURNS int(11)
+BEGIN
+
+	declare conta int;
+    declare nombre_cliente text;
+    declare fin_cursor int default FALSE; #cuando llegue al final sera true
+    #declaramos el cursor: un ursor es un conjunto de datos de una consulta
+    declare cursor_clientes cursor for select contactname from customers;
+    #se declara el cursor clientes para customerid dentro de customers, como controlar el cursor
+    
+    declare continue handler for not found set fin_cursor = TRUE;
+    
+    set conta = 0;
+    #se abre el cursor
+    open cursor_clientes;
+    #se usa un ciclo para recorrer cada registro
+    ciclo_cursor: loop
+		#leemos los datos del registro y los guardamos en una variable
+		fetch cursor_clientes into nombre_cliente;
+        #si llegamos al final, se produce la excepcion, fin_cursor, se iguala a true
+        
+        if fin_cursor then
+			leave ciclo_cursor;
+        else
+			set conta = conta + 1;
+            insert into nombre_cliente values(nombre_cliente);
+            end if;
+    end loop;
+    
+    close cursor_clientes;
+
+RETURN conta;
+END
+
+CREATE DEFINER=`root`@`localhost` FUNCTION `total_orders`(customer_id text) RETURNS double
+BEGIN
+	declare resu double; #
+	select sum(A.unitprice * A.quantity) into resu
+    from orderdetails A 
+	inner join orders B on B.orderid = A.orderid
+	where B.customerid = customer_id;
+
+
+RETURN resu;
+END
+
+CREATE DEFINER=`root`@`localhost` FUNCTION `ventas_producto_llenar`() RETURNS int(11)
+BEGIN
+
+	declare resu text;
+    declare productid int;
+    declare totalsales double;
+    declare totalunits double;
+    
+    declare fin_cursor int default FALSE; #cuando llegue al final sera true
+    #declaramos el cursor: un cursor es un conjunto de datos de una consulta
+    declare cursor_productos cursor for select distinct productid from products order by productid;
+    declare cursor_ventas cursor for select distinct ventas_producto(productit) 
+    from products order by productid;
+    declare cursor_cantidad cursor for select distinct cantidad_vendida_producto(productid) from products
+    order by productid;
+    #se declara el cursor productos para nuestra consulta dentro de products, como controlar el cursor
+    declare continue handler for not found set fin_cursor = TRUE;
+    
+	
+    #se abre el cursor
+    open cursor_productos;
+    open cursor_ventas;
+    open cursor_cantidad;
+    #se usa un ciclo para recorrer cada registro
+    ciclo_cursor: loop
+		#leemos los datos del registro y los guardamos en una variable
+		fetch cursor_productos into productid;
+		fetch cursor_ventas into totalsales;
+		fetch cursor_cantidad into totalunits;
+
+        
+        #si llegamos al final, se produce la excepcion, fin_cursor, se iguala a true
+        
+        if fin_cursor then
+			leave ciclo_cursor;
+            
+        else
+            insert into ventas_producto values(productid, totalsales, totalunits);
+            
+            end if;
+    end loop;
+    
+    close cursor_productos;
+    close cursor_ventas;
+    close cursor_cantidad;
+    
+    set resu = (productid, totalsales, totalunits);
+
+RETURN resu;
+END
+
+PROCEDURES now ahora lesga
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `cantidad_ordenes_cliente`(in customid text, out cant int)
+BEGIN
+
+	select count(*) into cant from orders where customerid = customid;
+
+END
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `obtener_clientes`(in letra text, out cantidad int)
+BEGIN
+
+	
+	select count(*) into cantidad from orders where customerid like concat(letra, '%');
+    
+    
+    
+
+END
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `ordenes_cliente`(in customid text)
+BEGIN
+
+	select * from orders where customerid = customid;
+
+END
+
+CREATE DEFINER=`root`@`localhost` PROCEDURE `todos_clientes`()
+BEGIN
+
+	select * from customers;
+
+END
